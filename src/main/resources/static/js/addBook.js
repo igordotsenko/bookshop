@@ -1,22 +1,42 @@
 function addBook() {
-  const bookName = prompt("Enter a book name");
-  const book = { name : bookName};
-  console.log(`Going to send a book with name ${bookName}`)
-  
-  const httpRr = new XMLHttpRequest();
-  httpRr.onreadystatechange = () => {
-    console.log(`Received response with status=${httpRr.status} and response text ${httpRr.responseText}`);
-    if (httpRr.readyState === 4 && httpRr.status === 200) {
-      const response = JSON.parse(httpRr.responseText);
-      addListItem("books_list", response.name);
+  // const bookName = prompt("Enter a book name");
+  // const book = { name : bookName};
+  // console.log(`Going to send a book with name ${bookName}`)
+  //
+  openDetailsModal();
+  const saveBtn = document.getElementById("save-details-button");
+  const titleEdit = document.getElementById("title-edit");
+  saveBtn.addEventListener('click', () => {
+    const title = titleEdit.value;
+    if (!title) {    
+      alert("Title cannot be empty!");
+      return;
     }
-  }
-  httpRr.open("POST", "http://127.0.0.1:8080/add");
-  httpRr.setRequestHeader("Content-type", "application/json");
-  const body = JSON.stringify(book);
+    const book = {title: title};
+    const httpRr = new XMLHttpRequest();
+    httpRr.onreadystatechange = () => {
+      console.log(`Received response with status=${httpRr.status} and response text ${httpRr.responseText}`);
+      // TODO add error handling
+      if (httpRr.readyState === 4 && httpRr.status === 200) {
+        // TODO add autorefresh
+        alert(`Added book with id = ${httpRr.responseText}`);
+        closeDetailsModal();
+        // addListItem("books_list", response.name);
+      }
+    }
+    httpRr.open("POST", "http://127.0.0.1:8080/book");
+    httpRr.setRequestHeader("Content-type", "application/json");
+    const body = JSON.stringify(book);
+
+    console.log(`Sending request with body ${body}`);
+    httpRr.send(body);
+  })
+
+  // httpRr.open("POST", "http://127.0.0.1:8080/add");
+
   
-  console.log(`Sending request with body ${body}`);
-  httpRr.send(body);
+  
+
 }
 
 function addListItem(listName, item) {

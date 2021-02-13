@@ -105,14 +105,14 @@ This is spring boot index page available inside resources/static/index.html
   <div class="details-modal">
     <div>
       <label >Title</label>
-      <input type="text">
+      <input id="title-edit" type="text">
     </div>
     <div >
       <label>Author</label>
       <input type="text">
     </div>
-    <button onclick="closeDetails()">close</button>
-    <button>save</button>
+    <button onclick="closeDetailsModal()">close</button>
+    <button id="save-details-button">save</button>
   </div>
 </div>
 
@@ -138,17 +138,17 @@ This is spring boot index page available inside resources/static/index.html
     <p class="price">10.00 UAH</p>
     <button class="edit-button" onclick="openDetails()">See details</button>
   </div>
-  <div class="book-item-card" th:each="book : ${books}">
+  <div class="book-item-card" th:each="book : ${books}" >
     <img
         src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"
         alt="Cannot load the image"
         style="width:100%"
     >
-    <p class="title overflow-text" th:text="${book}"></p>
+    <p class="title overflow-text" th:text="${book.title}"></p>
     <p class="author">By author</p>
     <p class="description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin eu mauris ut libero lacinia auctor vel in elit. Suspendisse tristique metus rutrum dolor pellentesque tempus. Sed vel sapien quis nisi molestie suscipit sed non libero.</p>
     <p class="price">10.00 UAH</p>
-    <button class="edit-button" onclick="openDetails()">See details</button>
+    <button class="edit-button" th:attr="data-bookid=${book.getId()}" onclick="openDetails(event)">See details</button>
   </div>
 
 </div>
