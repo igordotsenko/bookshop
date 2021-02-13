@@ -1,0 +1,191 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Spring boot index page example</title>
+  <script type="text/javascript" src="/js/hello.js"></script>
+  <script type="text/javascript" src="/js/addBook.js"></script>
+  <script type="text/javascript" src="/js/details.js"></script>
+  
+  <style>
+    .overflow-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 1; /* number of lines to show */
+      -webkit-box-orient: vertical;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: 33% 33% 33%;
+      font-family: Gill Sans, sans-serif;
+      margin-left: 10%;
+      margin-right: 10%;
+    }
+    .book-item-card {
+      background-color: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+      /*border: 1px solid rgba(0, 0, 0, 0.8);*/
+      margin: 20px;
+      font-size: 20px;
+      text-align: center;
+      /*position: relative;*/
+    }
+    .title {
+      font-size: 30px;
+      font-weight: bold;
+
+    }
+    .author {
+      font-size: 15px;
+      margin-bottom: 5px;
+
+    }
+    .description {
+      font-size: 18px;
+      height: 150px;
+      /*text-align: justify;*/
+      padding-left: 10px;
+      padding-right: 10px;
+      
+      /*TODO fix overflow text. Try to set the text view size using em units */
+      /*-webkit-line-clamp: 4; !* number of lines to show *!*/
+    }
+    .price {
+      color: grey;
+    }
+    .edit-button {
+      width: 100%;
+      height: 50px;
+      font-size: 20px;
+      background-color: black;
+      color: white;
+      margin-top: 10px;
+    }
+    .modal-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: visibility 0s opacity 0,5s;
+    }
+    .details-modal {
+      background-color: white;
+      height: 30%;
+      width: 30%;
+      display: block;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .details-modal-active {
+      visibility: visible;
+      opacity: 1;
+    }
+    .details-modal-inactive {
+      visibility: hidden;
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+This is spring boot index page available inside resources/static/index.html
+<!--<script type="text/javascript" src="/js/hello.js"></script>-->
+<button type="button" onclick="sayHello()">Say hello</button>
+<button type="button" onclick="addBook()">Add Book</button>
+
+
+<div class="modal-bg details-modal-inactive" id="details-modal">
+  <div class="details-modal">
+    <div>
+      <label >Title</label>
+      <input type="text">
+    </div>
+    <div >
+      <label>Author</label>
+      <input type="text">
+    </div>
+    <button onclick="closeDetails()">close</button>
+    <button>save</button>
+  </div>
+</div>
+
+<ul id="books_list" >
+  <li th:each="book : ${books}" th:text="${book}"></li>
+  <img 
+      src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg" 
+      alt="Cannot load the image"
+  >
+</ul>
+
+
+<div class="grid-container" >
+  <div class="book-item-card">
+    <img
+        src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"
+        alt="Cannot load the image"
+        style="width:100%"
+    >
+    <p class="title overflow-text">Hardcoded book</p>
+    <p class="author">By author</p>
+    <p class="description overflow-text">With short description</p>
+    <p class="price">10.00 UAH</p>
+    <button class="edit-button" onclick="openDetails()">See details</button>
+  </div>
+  <div class="book-item-card" th:each="book : ${books}">
+    <img
+        src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"
+        alt="Cannot load the image"
+        style="width:100%"
+    >
+    <p class="title overflow-text" th:text="${book}"></p>
+    <p class="author">By author</p>
+    <p class="description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin eu mauris ut libero lacinia auctor vel in elit. Suspendisse tristique metus rutrum dolor pellentesque tempus. Sed vel sapien quis nisi molestie suscipit sed non libero.</p>
+    <p class="price">10.00 UAH</p>
+    <button class="edit-button" onclick="openDetails()">See details</button>
+  </div>
+
+</div>
+<!--<div class="grid-container">-->
+<!--  <div class="grid-item">-->
+<!--    <img -->
+<!--        src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"-->
+<!--        alt="Cannot load the image"-->
+<!--    >-->
+<!--    -->
+<!--    <p>Star wars</p>-->
+<!--  </div>-->
+<!--  <div class="grid-item">-->
+<!--    <img-->
+<!--        src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"-->
+<!--        alt="Cannot load the image"-->
+<!--    >-->
+
+<!--    <p>Hello world</p>-->
+<!--  </div>-->
+<!--  <div class="grid-item">-->
+<!--    <img-->
+<!--        src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"-->
+<!--        alt="Cannot load the image"-->
+<!--    >-->
+
+<!--    <p>War and peas</p>-->
+<!--  </div>-->
+<!--  <div class="grid-item">-->
+<!--    <img-->
+<!--        src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"-->
+<!--        alt="Cannot load the image"-->
+<!--    >-->
+
+<!--    <p>Game of thrones</p>-->
+<!--  </div>-->
+<!--</div>-->
+
+</body>
+</html>
