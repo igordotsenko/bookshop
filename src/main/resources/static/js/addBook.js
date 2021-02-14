@@ -5,7 +5,7 @@ function addBook() {
   //
   openDetailsModal();
   const saveBtn = document.getElementById("save-details-button");
-  const titleEdit = document.getElementById("title-edit");
+  const titleEdit = document.getElementById("title_edit");
   saveBtn.addEventListener('click', () => {
     const title = titleEdit.value;
     if (!title) {    

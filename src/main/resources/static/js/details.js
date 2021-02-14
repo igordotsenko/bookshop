@@ -1,7 +1,8 @@
 function openDetails(e) {
   e.preventDefault();
   const bookId = e.target.dataset.bookid;
-  const bookTitleEdit = document.getElementById("title-edit");
+  const bookTitleEdit = document.getElementById("title_edit");
+  const form = getForm();
   
   const httpRr = new XMLHttpRequest();
   httpRr.onreadystatechange = () => {
@@ -9,7 +10,9 @@ function openDetails(e) {
     console.log(`Open details: received response with status=${httpRr.status} and response text ${httpRr.responseText}`);
     if (httpRr.readyState === 4 && httpRr.status === 200) {
       const response = JSON.parse(httpRr.responseText);
-      bookTitleEdit.value = response.title;
+      // bookTitleEdit.value = response.title;
+      form.title_edit.value = response.title;
+      form.bookId = response.id;
     }
   }
   // TODO add await window
@@ -18,7 +21,13 @@ function openDetails(e) {
   openDetailsModal();
 }
 
+function saveDetails(form) {
+  // alert(form.title_edit.value);
+  alert(form.bookId);
+}
+
 function openDetailsModal() {
+  clearForm();
   const modal = document.getElementById("details-modal");
   modal.classList.remove("details-modal-inactive");
   modal.classList.add("details-modal-active");
@@ -28,4 +37,14 @@ function closeDetailsModal() {
   const modal = document.getElementById("details-modal");
   modal.classList.remove("details-modal-active");
   modal.classList.add("details-modal-inactive");
+}
+
+function clearForm() {
+  const form = getForm();
+  form.reset();
+  form.bookId = undefined;
+}
+
+function getForm() {
+  return document.getElementById("details-form");
 }

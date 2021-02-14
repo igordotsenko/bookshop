@@ -7,62 +7,9 @@
   <script type="text/javascript" src="/js/hello.js"></script>
   <script type="text/javascript" src="/js/addBook.js"></script>
   <script type="text/javascript" src="/js/details.js"></script>
+  <link rel="stylesheet" type="text/css" href="/css/grid.css">
   
   <style>
-    .overflow-text {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 1; /* number of lines to show */
-      -webkit-box-orient: vertical;
-    }
-    .grid-container {
-      display: grid;
-      grid-template-columns: 33% 33% 33%;
-      font-family: Gill Sans, sans-serif;
-      margin-left: 10%;
-      margin-right: 10%;
-    }
-    .book-item-card {
-      background-color: rgba(255, 255, 255, 0.8);
-      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-      /*border: 1px solid rgba(0, 0, 0, 0.8);*/
-      margin: 20px;
-      font-size: 20px;
-      text-align: center;
-      /*position: relative;*/
-    }
-    .title {
-      font-size: 30px;
-      font-weight: bold;
-
-    }
-    .author {
-      font-size: 15px;
-      margin-bottom: 5px;
-
-    }
-    .description {
-      font-size: 18px;
-      height: 150px;
-      /*text-align: justify;*/
-      padding-left: 10px;
-      padding-right: 10px;
-      
-      /*TODO fix overflow text. Try to set the text view size using em units */
-      /*-webkit-line-clamp: 4; !* number of lines to show *!*/
-    }
-    .price {
-      color: grey;
-    }
-    .edit-button {
-      width: 100%;
-      height: 50px;
-      font-size: 20px;
-      background-color: black;
-      color: white;
-      margin-top: 10px;
-    }
     .modal-bg {
       position: fixed;
       top: 0;
@@ -76,9 +23,9 @@
       transition: visibility 0s opacity 0,5s;
     }
     .details-modal {
-      background-color: white;
-      height: 30%;
-      width: 30%;
+      background-color: #f2f2f2;
+      height: fit-content;
+      width: 50%;
       display: block;
       justify-content: center;
       align-items: center;
@@ -92,6 +39,45 @@
       visibility: hidden;
       opacity: 0;
     }
+    .details-form-container {
+      border-radius: 5px;
+      padding: 20px;
+      font-family: Gill Sans, sans-serif;
+    }
+    .details-row:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+    .details-label {
+      padding: 12px 12px 12px 0;
+      display: inline-block;
+    }
+    .details-description-text {
+      resize: none;
+    }
+    
+    .details-input {
+      font-family: Gill Sans, sans-serif;
+      color: black;
+      width: 100%;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      float: right;
+      box-sizing: border-box;
+    }
+    .details-col-25 {
+      float: left;
+      width: 25%;
+      margin-top: 6px;
+    }
+    .details-col-75 {
+      float: left;
+      width: 75%;
+      margin-top: 6px;
+    }
   </style>
 </head>
 <body>
@@ -103,16 +89,73 @@ This is spring boot index page available inside resources/static/index.html
 
 <div class="modal-bg details-modal-inactive" id="details-modal">
   <div class="details-modal">
-    <div>
-      <label >Title</label>
-      <input id="title-edit" type="text">
-    </div>
-    <div >
-      <label>Author</label>
-      <input type="text">
-    </div>
-    <button onclick="closeDetailsModal()">close</button>
-    <button id="save-details-button">save</button>
+    <form id="details-form" action="javascript:;" onsubmit="saveDetails(this)">
+      <div class="details-form-container">
+        
+        <div class="details-row">
+          <div class="details-col-25">
+            <label class="details-label" for="title_edit">Title</label>
+          </div>
+          <div class="details-col-75">
+            <input class="details-input" id="title_edit" type="text" name="title_edit">
+          </div>
+        </div>
+
+        <div class="details-row">
+          <div class="details-col-25">
+            <label class="details-label" for="author_edit">Author</label>
+          </div>
+          <div class="details-col-75">
+            <input class="details-input" id="author_edit" type="text" name="author_edit">
+          </div>
+        </div>
+
+        <div class="details-row">
+          <div class="details-col-25">
+            <label class="details-label" for="price_edit">Price, UAH</label>
+          </div>
+          <div class="details-col-75">
+            <input class="details-input" id="price_edit" type="text" name="price_edit">
+          </div>
+        </div>
+
+        <div class="details-row">
+          <div class="details-col-25">
+            <label class="details-label" for="description_edit">Description</label>
+          </div>
+          <div class="details-col-75">
+            <textarea 
+                class="details-description-text details-input"
+                rows=10 
+                id="description_edit" 
+                name="description_edit" 
+                placeholder="Write short description..."
+                ></textarea>
+          </div>
+        </div>
+
+        <div class="details-row">
+          <div class="details-col-25">
+            <label class="details-label" for="year_published_edit">Year published</label>
+          </div>
+          <div class="details-col-75">
+            <input class="details-input" id="year_published_edit" type="text" name="year_published_edit">
+          </div>
+        </div>
+
+        <div class="details-row">
+          <div class="details-col-25">
+            <label class="details-label" for="publisher_edit">Publisher</label>
+          </div>
+          <div class="details-col-75">
+            <input class="details-input" id="publisher_edit" type="text" name="publisher_edit">
+          </div>
+        </div>
+        
+        <button type="button" onclick="closeDetailsModal()">close</button>
+        <button id="save-details-button">save</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -152,40 +195,6 @@ This is spring boot index page available inside resources/static/index.html
   </div>
 
 </div>
-<!--<div class="grid-container">-->
-<!--  <div class="grid-item">-->
-<!--    <img -->
-<!--        src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"-->
-<!--        alt="Cannot load the image"-->
-<!--    >-->
-<!--    -->
-<!--    <p>Star wars</p>-->
-<!--  </div>-->
-<!--  <div class="grid-item">-->
-<!--    <img-->
-<!--        src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"-->
-<!--        alt="Cannot load the image"-->
-<!--    >-->
-
-<!--    <p>Hello world</p>-->
-<!--  </div>-->
-<!--  <div class="grid-item">-->
-<!--    <img-->
-<!--        src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"-->
-<!--        alt="Cannot load the image"-->
-<!--    >-->
-
-<!--    <p>War and peas</p>-->
-<!--  </div>-->
-<!--  <div class="grid-item">-->
-<!--    <img-->
-<!--        src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"-->
-<!--        alt="Cannot load the image"-->
-<!--    >-->
-
-<!--    <p>Game of thrones</p>-->
-<!--  </div>-->
-<!--</div>-->
 
 </body>
 </html>
