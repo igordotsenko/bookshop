@@ -84,7 +84,7 @@
 This is spring boot index page available inside resources/static/index.html
 <!--<script type="text/javascript" src="/js/hello.js"></script>-->
 <button type="button" onclick="sayHello()">Say hello</button>
-<button type="button" onclick="addBook()">Add Book</button>
+<button type="button" onclick="openDetailsModal()">Add Book</button>
 
 
 <div class="modal-bg details-modal-inactive" id="details-modal">
@@ -97,7 +97,7 @@ This is spring boot index page available inside resources/static/index.html
             <label class="details-label" for="title_edit">Title</label>
           </div>
           <div class="details-col-75">
-            <input class="details-input" id="title_edit" type="text" name="title_edit">
+            <input class="details-input" id="title_edit" required="required" type="text" name="title_edit">
           </div>
         </div>
 
@@ -106,7 +106,7 @@ This is spring boot index page available inside resources/static/index.html
             <label class="details-label" for="author_edit">Author</label>
           </div>
           <div class="details-col-75">
-            <input class="details-input" id="author_edit" type="text" name="author_edit">
+            <input class="details-input" id="author_edit"  required="required" type="text" name="author_edit">
           </div>
         </div>
 
@@ -115,7 +115,13 @@ This is spring boot index page available inside resources/static/index.html
             <label class="details-label" for="price_edit">Price, UAH</label>
           </div>
           <div class="details-col-75">
-            <input class="details-input" id="price_edit" type="text" name="price_edit">
+            <input class="details-input" 
+                   id="price_edit" 
+                   required="required" 
+                   type="number" 
+                   min="0.01" 
+                   step="0.01" 
+                   name="price_edit">
           </div>
         </div>
 
@@ -179,9 +185,9 @@ This is spring boot index page available inside resources/static/index.html
     <p class="author">By author</p>
     <p class="description overflow-text">With short description</p>
     <p class="price">10.00 UAH</p>
-    <button class="edit-button" onclick="openDetails()">See details</button>
+    <button class='edit-button' onclick="openDetails()">See details</button>
   </div>
-  <div class="book-item-card" th:each="book : ${books}" >
+  <div class="book-item-card" th:each="book : ${books}" th:id="'book-item-card-id-'+${book.getId()}">
     <img
         src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"
         alt="Cannot load the image"

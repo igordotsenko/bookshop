@@ -14,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -25,7 +26,7 @@ public class BookShopController {
     private Map<Long, Book> idToBooks = new ConcurrentHashMap<>(Map.of(
         1L, Book.builder().id(1).title("Catch 22").build(),
         2L, Book.builder().id(2).title("Star wars").build(),
-        3L, Book.builder().id(3).title("War and peace").build(),
+        3L, Book.builder().id(3).title("War and peace").author("Lev Tolstoy").price(42.5).yearPublished(2000).build(),
         4L, Book.builder().id(4).title("Book with an extra long name").build()
     )) {
     };
@@ -64,6 +65,18 @@ public class BookShopController {
         books.add(book.getTitle());
         log.info("Added book with name {}", book.getTitle());
         return ResponseEntity.ok(book);
+    }
+    
+    @PutMapping("/book/{id}")
+    public ResponseEntity<Long> updateBook(@RequestBody Book book, @PathVariable("id") long bookId) {
+        if (!idToBooks.containsKey(bookId)) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        log.info("Updated book with id = {} to: {}", bookId, book);
+        Book updatedBook = book.toBuilder().id(bookId).build();
+        idToBooks.put(bookId, updatedBook);
+        return ResponseEntity.ok(bookId);
     }
 
     @PostMapping("/book")
