@@ -39,33 +39,24 @@ function saveDetails(form) {
     author : form.author_edit.value,
     price : form.price_edit.value
   }
-  if (form.description_edit.value) book.price = form.description_edit.value;
+  if (form.description_edit.value) book.description = form.description_edit.value;
   if (form.year_published_edit.value) book.yearPublished = form.year_published_edit.value;
   if (form.publisher_edit.value) book.publisher = form.publisher_edit.value;
   
   const httpRr = new XMLHttpRequest();
   httpRr.onreadystatechange = () => {
     console.log(`Save details: received response with status=${httpRr.status} and response text ${httpRr.responseText}`);
-
-    // Alert
-    // If new book: add item to grid
-    // If existing book: update grid item
-    // Close modal
+    
     if (httpRr.readyState === 4 && httpRr.status === 200) {
       const response = JSON.parse(httpRr.responseText);
       if (isNewBook) {
-        alert(`New book is added. Book id = ${response}`)
+        alert(`New book is added. Book id = ${response}`);
+        addNewGridItem(response, book);
       } else {
-        alert(`Book with id = ${form.bookId} has been updated`)
+        alert(`Book with id = ${form.bookId} has been updated`);
+        updateGridItem(form.bookId, book);
       }
       closeDetailsModal();
-      // form.bookId = bookId;
-      // form.title_edit.value = response.title;
-      // form.author_edit.value = response.author;
-      // form.price_edit.value = response.price;
-      // if (response.description) form.description_edit.value = response.description;
-      // if (response.yearPublished) form.year_published_edit.value = response.yearPublished;
-      // if (response.publisher) form.publisher_edit.value = response.publisher;
     } else {
       handleRequestError(httpRr);
     }
@@ -114,4 +105,61 @@ function handleRequestError(httpRr) {
   } else if (httpRr.readyState === 4) {
     alert(`Unexpected server response. Status = ${httpRr.status}`);
   }
+}
+
+function buildGridItem(bookId, book) {
+  const gridItem = document.createElement('div');
+  gridItem.id = `book-item-card-id-${bookId}`;
+  gridItem.className = "book-item-card";
+  
+  const bookImg = document.createElement('img');
+  bookImg.className = "book-image";
+  // TODO update to real URL
+  bookImg.src = "https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg";
+  
+  gridItem.appendChild(bookImg);
+  gridItem.appendChild(createP(['title', 'overflow-text'], book.title));
+  gridItem.appendChild(createP(['author'], book.author));
+  console.log(`New book description = ${book.description}`)
+  gridItem.appendChild(createP(['description'], getDescription(book.description)));
+  gridItem.appendChild(createP(['price'], formatPrice(book.price)));
+  
+  const editBtn = document.createElement('button');
+  editBtn.className = "edit-button";
+  editBtn.setAttribute("data-bookid", bookId);
+  editBtn.onclick = () => openDetails(event);
+  editBtn.innerHTML = "Click for details";
+  gridItem.appendChild(editBtn);
+  
+  return gridItem;
+}
+
+function createP(classes, text) {
+  const p = document.createElement('p');
+  p.classList.add(...classes);
+  p.innerHTML = text;
+  return p;
+}
+
+function addNewGridItem(bookId, book) {
+  const grid = document.getElementById("grid-container");
+  const gridItem = buildGridItem(bookId, book);
+  grid.prepend(gridItem);
+}
+
+function updateGridItem(bookId, book) {
+  const gridItem = document.getElementById(`book-item-card-id-${bookId}`);
+  gridItem.querySelector(".title").innerHTML = book.title;
+  gridItem.querySelector(".author").innerHTML = book.author;
+  gridItem.querySelector(".description").innerHTML = getDescription(book.description);
+  gridItem.querySelector(".price").innerHTML = formatPrice(book.price);
+}
+
+function formatPrice(price) {
+  const formattedNumber = parseFloat(price).toFixed(2);
+  return `${formattedNumber} UAH`;
+}
+
+function getDescription(initDescription) {
+  return initDescription ? initDescription : "No description yet..."
 }

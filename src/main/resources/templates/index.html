@@ -145,7 +145,13 @@ This is spring boot index page available inside resources/static/index.html
             <label class="details-label" for="year_published_edit">Year published</label>
           </div>
           <div class="details-col-75">
-            <input class="details-input" id="year_published_edit" type="text" name="year_published_edit">
+            <input 
+                class="details-input" 
+                id="year_published_edit" 
+                type="number" 
+                min="1900" 
+                step="1" 
+                name="year_published_edit">
           </div>
         </div>
 
@@ -174,7 +180,7 @@ This is spring boot index page available inside resources/static/index.html
 </ul>
 
 
-<div class="grid-container" >
+<div class="grid-container" id="grid-container">
   <div class="book-item-card">
     <img
         src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"
@@ -188,16 +194,15 @@ This is spring boot index page available inside resources/static/index.html
     <button class='edit-button' onclick="openDetails()">See details</button>
   </div>
   <div class="book-item-card" th:each="book : ${books}" th:id="'book-item-card-id-'+${book.getId()}">
-    <img
+    <img class="book-image"
         src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"
         alt="Cannot load the image"
-        style="width:100%"
     >
     <p class="title overflow-text" th:text="${book.title}"></p>
     <p class="author">By author</p>
     <p class="description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin eu mauris ut libero lacinia auctor vel in elit. Suspendisse tristique metus rutrum dolor pellentesque tempus. Sed vel sapien quis nisi molestie suscipit sed non libero.</p>
     <p class="price">10.00 UAH</p>
-    <button class="edit-button" th:attr="data-bookid=${book.getId()}" onclick="openDetails(event)">See details</button>
+    <button class="edit-button" th:attr="data-bookid=${book.getId()}" onclick="openDetails(event)">Click for details</button>
   </div>
 
 </div>
