@@ -10,6 +10,28 @@
   <link rel="stylesheet" type="text/css" href="/css/grid.css">
   
   <style>
+    .add-book-btn-container {
+      padding-left: 10vw;
+      padding-right: 10vw;
+      padding-top: 5vh;
+      justify-content: center;
+      align-content: center;
+      display: flex;
+    }
+    
+    .add-book-btn {
+      font-family: Gill Sans, sans-serif;
+      font-size: x-large;
+      width: 100%;
+      height: 15vh;
+      background-color: deepskyblue;
+      color: white;
+      padding: 24px;
+      border: none;
+      border-radius: 10px;
+      horiz-align: center;
+    }
+
     .modal-bg {
       position: fixed;
       top: 0;
@@ -89,11 +111,6 @@
   </style>
 </head>
 <body>
-This is spring boot index page available inside resources/static/index.html
-<!--<script type="text/javascript" src="/js/hello.js"></script>-->
-<button type="button" onclick="sayHello()">Say hello</button>
-<button type="button" onclick="openDetailsModal(false)">Add Book</button>
-
 
 <div class="modal-bg details-modal-inactive" id="details-modal">
   <div class="details-modal">
@@ -180,16 +197,16 @@ This is spring boot index page available inside resources/static/index.html
   </div>
 </div>
 
-<ul id="books_list" >
-  <li th:each="book : ${books}" th:text="${book}"></li>
-</ul>
 
+<div class="add-book-btn-container">
+  <button class="add-book-btn" type="button" onclick="openDetailsModal(false)">Add Book</button>
+</div>
 
 <div class="grid-container" id="grid-container">
   <div class="book-item-card" th:each="book : ${books}" th:id="'book-item-card-id-'+${book.getId()}">
     <img class="book-image"
-        src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"
-        alt="Cannot load the image"
+         src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"
+         alt="Cannot load the image"
     >
     <p class="title overflow-text" th:text="${book.title}"></p>
     <p class="author" th:text="${book.getAuthor()}"></p>
@@ -198,7 +215,6 @@ This is spring boot index page available inside resources/static/index.html
     <p class="price" th:text="${book.getPriceFormatted()} + ' UAH'"></p>
     <button class="edit-button" th:attr="data-bookid=${book.getId()}" onclick="openDetails(event)">Click for details</button>
   </div>
-
 </div>
 
 </body>

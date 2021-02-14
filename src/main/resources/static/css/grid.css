@@ -5,6 +5,7 @@
   -webkit-line-clamp: 1; /* number of lines to show */
   -webkit-box-orient: vertical;
 }
+
 .grid-container {
   display: grid;
   grid-template-columns: 33% 33% 33%;
