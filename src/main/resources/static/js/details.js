@@ -4,6 +4,9 @@ function openDetails(e) {
   const bookId = e.target.dataset.bookid;
   const form = getForm();
   
+  // Show delete button if it is existing item  
+  console.log(`Book id = ${bookId}`);
+  
   const httpRr = new XMLHttpRequest();
   httpRr.onreadystatechange = () => {
     console.log(`Open details: received response with status=${httpRr.status} and response text ${httpRr.responseText}`);
@@ -23,7 +26,8 @@ function openDetails(e) {
   // TODO add await window
   httpRr.open("GET", `http://127.0.0.1:8080/book/${bookId}`);
   httpRr.send()
-  openDetailsModal();
+  openDetailsModal(true);
+  getDeleteBtn().addEventListener('click', () => deleteBook(bookId));
 }
 
 function saveDetails(form) {
@@ -47,7 +51,7 @@ function saveDetails(form) {
   httpRr.onreadystatechange = () => {
     console.log(`Save details: received response with status=${httpRr.status} and response text ${httpRr.responseText}`);
     
-    if (httpRr.readyState === 4 && httpRr.status === 200) {
+    handleResponse(httpRr, () => {
       const response = JSON.parse(httpRr.responseText);
       if (isNewBook) {
         alert(`New book is added. Book id = ${response}`);
@@ -57,9 +61,20 @@ function saveDetails(form) {
         updateGridItem(form.bookId, book);
       }
       closeDetailsModal();
-    } else {
-      handleRequestError(httpRr);
-    }
+    });
+    // if (httpRr.readyState === 4 && httpRr.status === 200) {
+    //   const response = JSON.parse(httpRr.responseText);
+    //   if (isNewBook) {
+    //     alert(`New book is added. Book id = ${response}`);
+    //     addNewGridItem(response, book);
+    //   } else {
+    //     alert(`Book with id = ${form.bookId} has been updated`);
+    //     updateGridItem(form.bookId, book);
+    //   }
+    //   closeDetailsModal();
+    // } else {
+    //   handleRequestError(httpRr);
+    // }
   }
 
   const body = JSON.stringify(book);
@@ -74,12 +89,39 @@ function saveDetails(form) {
   httpRr.send(body);
 }
 
-function openDetailsModal() {
+function handleResponse(httpRr, successHandler) {
+  if (httpRr.readyState === 4 && httpRr.status === 200) {
+    successHandler();
+  } else {
+    handleRequestError(httpRr);
+  }
+}
+
+function deleteBook(bookId) {
+  const httpRr = new XMLHttpRequest();
+  httpRr.onreadystatechange = () => handleResponse(httpRr, () => {
+    alert(`Book with id = ${bookId} has been deleted`);
+    deleteGridItem(bookId);
+    closeDetailsModal();
+  });
+  httpRr.open("DELETE", `http://127.0.0.1:8080/book/${bookId}`);
+  httpRr.send();
+}
+
+function deleteGridItem(bookId) {
+  document.getElementById(`book-item-card-id-${bookId}`).remove();
+}
+
+function openDetailsModal(showDeleteBtn) {
   clearForm();
   const modal = document.getElementById("details-modal");
   modal.classList.remove("details-modal-inactive");
   modal.classList.add("details-modal-active");
-
+  if (showDeleteBtn) {
+    getDeleteBtn().style.display = "block";
+  } else {
+    getDeleteBtn().style.display = "none";
+  }
 }
 function closeDetailsModal() {
   const modal = document.getElementById("details-modal");
@@ -162,4 +204,8 @@ function formatPrice(price) {
 
 function getDescription(initDescription) {
   return initDescription ? initDescription : "No description yet..."
+}
+
+function getDeleteBtn() {
+  return document.getElementById("delete-book-btn");
 }

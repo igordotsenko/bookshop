@@ -13,5 +13,9 @@ public class Book {
     private double price;
     private int yearPublished;
     private String publisher;
-    private boolean isActive;
+    private boolean isDeleted;
+    
+    public boolean isActive() {
+        return !isDeleted();
+    }
 }

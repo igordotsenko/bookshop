@@ -7,16 +7,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @Slf4j
@@ -36,13 +37,21 @@ public class BookShopController {
     
     @GetMapping("/books")
     public ResponseEntity<Collection<Book>> getAllBooks(Model model) {
-        return ResponseEntity.ok(idToBooks.values());
+        return ResponseEntity.ok(getActiveBooks());
     }
-    
+
+    private Set<Book> getActiveBooks() {
+        return idToBooks.values().stream()
+            .filter(Book::isActive)
+            .collect(Collectors.toSet());
+    }
+
+
     @GetMapping("/")
     public String getIndex(Model model) {
-//        model.addAttribute("books", books);
-        model.addAttribute("books", idToBooks.values());
+        Set<Book> activeBooks = getActiveBooks();
+        log.info("Active books: {}", activeBooks);
+        model.addAttribute("books", activeBooks);
         return "index.html";
     }
 
@@ -53,19 +62,19 @@ public class BookShopController {
         return ResponseEntity.ok(idToBooks.get(bookId));
     }
     
-    @GetMapping("/ping")
-    @ResponseBody
-    public String ping() {
-        return "pong";
-    } 
+//    @GetMapping("/ping")
+//    @ResponseBody
+//    public String ping() {
+//        return "pong";
+//    } 
     
-    @PostMapping("/add")
-    public ResponseEntity<Book> addBookName(@RequestBody Book book) {
-        log.info("Received book to add: {}", book);
-        books.add(book.getTitle());
-        log.info("Added book with name {}", book.getTitle());
-        return ResponseEntity.ok(book);
-    }
+//    @PostMapping("/add")
+//    public ResponseEntity<Book> addBookName(@RequestBody Book book) {
+//        log.info("Received book to add: {}", book);
+//        books.add(book.getTitle());
+//        log.info("Added book with name {}", book.getTitle());
+//        return ResponseEntity.ok(book);
+//    }
     
     @PutMapping("/book/{id}")
     public ResponseEntity<Long> updateBook(@RequestBody Book book, @PathVariable("id") long bookId) {
@@ -89,12 +98,19 @@ public class BookShopController {
         log.info("Saved inputBook  {}", inputBook);
         return ResponseEntity.ok(newBook.getId());
     }
-
-//    @Override
-//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-//        registry.addResourceHandler("/templates/**")
-////            .addResourceLocations(extStaticPath)
-//            .setCachePeriod(0);
-//    }
+    
+    @DeleteMapping("/book/{id}")
+    public ResponseEntity<Long> deleteBook(@PathVariable("id") long bookId) {
+        log.info("Received the delete request for book with id {}", bookId);
+        if (!idToBooks.containsKey(bookId)) {
+            return ResponseEntity.notFound().build();
+        }
+        idToBooks.computeIfPresent(bookId, (id, book) -> {
+            book.setDeleted(true);
+            log.info("Set book with id {} a inactive. Book: {}", bookId, book);
+            return book;
+        });
+        return ResponseEntity.ok(bookId);
+    }
     
 }

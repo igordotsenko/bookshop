@@ -78,13 +78,21 @@
       width: 75%;
       margin-top: 6px;
     }
+    .delete-button {
+      background-color: red;
+      float: right;
+      border: none;
+      padding: 5px;
+      border-radius: 5px;
+      display: none;
+    }
   </style>
 </head>
 <body>
 This is spring boot index page available inside resources/static/index.html
 <!--<script type="text/javascript" src="/js/hello.js"></script>-->
 <button type="button" onclick="sayHello()">Say hello</button>
-<button type="button" onclick="openDetailsModal()">Add Book</button>
+<button type="button" onclick="openDetailsModal(false)">Add Book</button>
 
 
 <div class="modal-bg details-modal-inactive" id="details-modal">
@@ -166,6 +174,7 @@ This is spring boot index page available inside resources/static/index.html
         
         <button type="button" onclick="closeDetailsModal()">close</button>
         <button id="save-details-button">save</button>
+        <button type="button" id="delete-book-btn" class="delete-button">Delete Book</button>
       </div>
     </form>
   </div>
