@@ -1,5 +1,6 @@
 package com.kpi.bookshop;
 
+import java.util.Locale;
 import lombok.Builder;
 import lombok.Data;
 
@@ -17,5 +18,9 @@ public class Book {
     
     public boolean isActive() {
         return !isDeleted();
+    }
+    
+    public String getPriceFormatted() {
+        return String.format(Locale.US, "%.2f", price);
     }
 }

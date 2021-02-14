@@ -4,13 +4,9 @@ function openDetails(e) {
   const bookId = e.target.dataset.bookid;
   const form = getForm();
   
-  // Show delete button if it is existing item  
-  console.log(`Book id = ${bookId}`);
-  
   const httpRr = new XMLHttpRequest();
   httpRr.onreadystatechange = () => {
-    console.log(`Open details: received response with status=${httpRr.status} and response text ${httpRr.responseText}`);
-    if (httpRr.readyState === 4 && httpRr.status === 200) {
+    handleResponse(httpRr, () => {
       const response = JSON.parse(httpRr.responseText);
       form.bookId = bookId;
       form.title_edit.value = response.title;
@@ -19,9 +15,7 @@ function openDetails(e) {
       if (response.description) form.description_edit.value = response.description;
       if (response.yearPublished) form.year_published_edit.value = response.yearPublished;
       if (response.publisher) form.publisher_edit.value = response.publisher;
-    } else {
-      handleRequestError(httpRr);
-    }
+    });
   }
   // TODO add await window
   httpRr.open("GET", `http://127.0.0.1:8080/book/${bookId}`);
@@ -31,12 +25,6 @@ function openDetails(e) {
 }
 
 function saveDetails(form) {
-  // alert(form.title_edit.value);
-  if (form.bookId) {
-    alert(`Going to update book with id = ${form.bookId}`);
-  } else {
-    alert(`Going to add a new book`);
-  }
   const isNewBook = !form.bookId;
   const book = {
     title : form.title_edit.value,
@@ -49,8 +37,6 @@ function saveDetails(form) {
   
   const httpRr = new XMLHttpRequest();
   httpRr.onreadystatechange = () => {
-    console.log(`Save details: received response with status=${httpRr.status} and response text ${httpRr.responseText}`);
-    
     handleResponse(httpRr, () => {
       const response = JSON.parse(httpRr.responseText);
       if (isNewBook) {
@@ -62,19 +48,6 @@ function saveDetails(form) {
       }
       closeDetailsModal();
     });
-    // if (httpRr.readyState === 4 && httpRr.status === 200) {
-    //   const response = JSON.parse(httpRr.responseText);
-    //   if (isNewBook) {
-    //     alert(`New book is added. Book id = ${response}`);
-    //     addNewGridItem(response, book);
-    //   } else {
-    //     alert(`Book with id = ${form.bookId} has been updated`);
-    //     updateGridItem(form.bookId, book);
-    //   }
-    //   closeDetailsModal();
-    // } else {
-    //   handleRequestError(httpRr);
-    // }
   }
 
   const body = JSON.stringify(book);
@@ -90,6 +63,7 @@ function saveDetails(form) {
 }
 
 function handleResponse(httpRr, successHandler) {
+  console.log(`Received response with status=${httpRr.status} and response text ${httpRr.responseText}`);
   if (httpRr.readyState === 4 && httpRr.status === 200) {
     successHandler();
   } else {
@@ -203,7 +177,7 @@ function formatPrice(price) {
 }
 
 function getDescription(initDescription) {
-  return initDescription ? initDescription : "No description yet..."
+  return initDescription ? initDescription : "No description added yet..."
 }
 
 function getDeleteBtn() {

@@ -182,35 +182,20 @@ This is spring boot index page available inside resources/static/index.html
 
 <ul id="books_list" >
   <li th:each="book : ${books}" th:text="${book}"></li>
-  <img 
-      src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg" 
-      alt="Cannot load the image"
-  >
 </ul>
 
 
 <div class="grid-container" id="grid-container">
-  <div class="book-item-card">
-    <img
-        src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"
-        alt="Cannot load the image"
-        style="width:100%"
-    >
-    <p class="title overflow-text">Hardcoded book</p>
-    <p class="author">By author</p>
-    <p class="description overflow-text">With short description</p>
-    <p class="price">10.00 UAH</p>
-    <button class='edit-button' onclick="openDetails()">See details</button>
-  </div>
   <div class="book-item-card" th:each="book : ${books}" th:id="'book-item-card-id-'+${book.getId()}">
     <img class="book-image"
         src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"
         alt="Cannot load the image"
     >
     <p class="title overflow-text" th:text="${book.title}"></p>
-    <p class="author">By author</p>
-    <p class="description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin eu mauris ut libero lacinia auctor vel in elit. Suspendisse tristique metus rutrum dolor pellentesque tempus. Sed vel sapien quis nisi molestie suscipit sed non libero.</p>
-    <p class="price">10.00 UAH</p>
+    <p class="author" th:text="${book.getAuthor()}"></p>
+    <p class="description" th:if="${book.getDescription()} == null">No description added yet...</p>
+    <p class="description" th:unless="${book.getDescription()} == null" th:text="${book.getDescription()}"></p>
+    <p class="price" th:text="${book.getPriceFormatted()} + ' UAH'"></p>
     <button class="edit-button" th:attr="data-bookid=${book.getId()}" onclick="openDetails(event)">Click for details</button>
   </div>
 

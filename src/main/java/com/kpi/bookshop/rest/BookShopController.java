@@ -25,10 +25,10 @@ public class BookShopController {
     private Set<String> books = new HashSet<>(Set.of("Catch 22", "Star wars", "War and peace", 
         "Book with an extra long name"));
     private Map<Long, Book> idToBooks = new ConcurrentHashMap<>(Map.of(
-        1L, Book.builder().id(1).title("Catch 22").build(),
-        2L, Book.builder().id(2).title("Star wars").build(),
+        1L, Book.builder().id(1).title("Catch 22").author("Kek").price(22).build(),
+        2L, Book.builder().id(2).title("Star wars").author("George Lukas").price(10.5).build(),
         3L, Book.builder().id(3).title("War and peace").author("Lev Tolstoy").price(42.5).yearPublished(2000).build(),
-        4L, Book.builder().id(4).title("Book with an extra long name").build()
+        4L, Book.builder().id(4).title("Book with an extra long name").author("Author").price(50.123).build()
     )) {
     };
     
@@ -45,8 +45,7 @@ public class BookShopController {
             .filter(Book::isActive)
             .collect(Collectors.toSet());
     }
-
-
+    
     @GetMapping("/")
     public String getIndex(Model model) {
         Set<Book> activeBooks = getActiveBooks();
@@ -61,20 +60,6 @@ public class BookShopController {
         log.info("Get book with id = {}", bookId);
         return ResponseEntity.ok(idToBooks.get(bookId));
     }
-    
-//    @GetMapping("/ping")
-//    @ResponseBody
-//    public String ping() {
-//        return "pong";
-//    } 
-    
-//    @PostMapping("/add")
-//    public ResponseEntity<Book> addBookName(@RequestBody Book book) {
-//        log.info("Received book to add: {}", book);
-//        books.add(book.getTitle());
-//        log.info("Added book with name {}", book.getTitle());
-//        return ResponseEntity.ok(book);
-//    }
     
     @PutMapping("/book/{id}")
     public ResponseEntity<Long> updateBook(@RequestBody Book book, @PathVariable("id") long bookId) {
@@ -107,7 +92,6 @@ public class BookShopController {
         }
         idToBooks.computeIfPresent(bookId, (id, book) -> {
             book.setDeleted(true);
-            log.info("Set book with id {} a inactive. Book: {}", bookId, book);
             return book;
         });
         return ResponseEntity.ok(bookId);
