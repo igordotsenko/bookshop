@@ -19,9 +19,14 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class BookShopController {
     private final BooksService booksService;
+    private final FileStoreService fileStoreService;
 
-    public BookShopController(@Autowired BooksService booksService) {
+    public BookShopController(
+        @Autowired BooksService booksService,
+        @Autowired FileStoreService fileStoreService) {
+        
         this.booksService = booksService;
+        this.fileStoreService = fileStoreService;
     }
 
     @GetMapping("/")
@@ -62,6 +67,10 @@ public class BookShopController {
         }
         
         try {
+            if (image != null) {
+                String filePath = fileStoreService.storeFile(image);
+                log.info("Saved image. Path = {}", filePath);
+            }
             Book updatedBook = book.toBuilder().id(bookId).build();
             return booksService.updateBook(updatedBook) ?
                 ResponseEntity.ok(bookId) : ResponseEntity.notFound().build();
@@ -80,6 +89,10 @@ public class BookShopController {
         
         try {
             log.info("Save book: {}", inputBook);
+            if (image != null) {
+                String filePath = fileStoreService.storeFile(image);
+                log.info("Saved image. Path = {}", filePath);
+            }
             Book newBook = inputBook.toBuilder().id(0).build();
             long savedBookId = booksService.addBook(newBook).getId();
             return ResponseEntity.ok(savedBookId);
