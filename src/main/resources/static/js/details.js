@@ -4,22 +4,23 @@ function openDetails(e) {
   const bookId = e.target.dataset.bookid;
   const form = getForm();
   
-  const httpRr = new XMLHttpRequest();
-  httpRr.onreadystatechange = () => {
-    handleResponse(httpRr, () => {
-      const response = JSON.parse(httpRr.responseText);
-      form.bookId = bookId;
-      form.title_edit.value = response.title;
-      form.author_edit.value = response.author;
-      form.price_edit.value = response.price;
-      if (response.description) form.description_edit.value = response.description;
-      if (response.yearPublished) form.year_published_edit.value = response.yearPublished;
-      if (response.publisher) form.publisher_edit.value = response.publisher;
+  
+  fetch(`http://127.0.0.1:8080/book/${bookId}`, { method : "get" }).
+  then((fetchResponse) => {
+    handleResponse(fetchResponse, () => {
+      fetchResponse.text().then(responseText => {
+        const response = JSON.parse(responseText);
+        form.bookId = bookId;
+        form.title_edit.value = response.title;
+        form.author_edit.value = response.author;
+        form.price_edit.value = response.price;
+        if (response.description) form.description_edit.value = response.description;
+        if (response.yearPublished) form.year_published_edit.value = response.yearPublished;
+        if (response.publisher) form.publisher_edit.value = response.publisher;
+      });
     });
-  }
-  // TODO add await window
-  httpRr.open("GET", `http://127.0.0.1:8080/book/${bookId}`);
-  httpRr.send()
+  });
+  
   openDetailsModal(true);
   getDeleteBtn().addEventListener('click', () => deleteBook(bookId));
 }
@@ -35,51 +36,64 @@ function saveDetails(form) {
   if (form.year_published_edit.value) book.yearPublished = form.year_published_edit.value;
   if (form.publisher_edit.value) book.publisher = form.publisher_edit.value;
   
-  const httpRr = new XMLHttpRequest();
-  httpRr.onreadystatechange = () => {
-    handleResponse(httpRr, () => {
-      const response = JSON.parse(httpRr.responseText);
-      if (isNewBook) {
-        alert(`New book is added. Book id = ${response}`);
-        addNewGridItem(response, book);
-      } else {
-        alert(`Book with id = ${form.bookId} has been updated`);
-        updateGridItem(form.bookId, book);
-      }
-      closeDetailsModal();
-    });
-  }
+  // Get image
+  const imageFiles = form.book_image_edit.files;
+  console.log("Image files = " + imageFiles);
+  const image = imageFiles.length > 0 ? imageFiles[0] : undefined;
 
-  const body = JSON.stringify(book);
-  if (isNewBook) {
-    httpRr.open("POST", "/book");
-    console.log(`Sending POST request with body = ${body}`);
-  } else {
-    httpRr.open("PUT", `/book/${form.bookId}`);
-    console.log(`Sending PUT request with body = ${body}`);
+  // Build form data
+  const formData = new FormData();
+  formData.append("book",  new Blob([JSON.stringify(book)], {
+    type: "application/json"
+  }));
+  if (image) {
+    console.log("Appending image to request: " + image);
+    formData.append("image", image);
   }
-  httpRr.setRequestHeader("Content-type", "application/json");
-  httpRr.send(body);
+  
+  const responsePromise = isNewBook ?
+      // Add new book
+      fetch("/book", { method: 'post', body: formData}) :
+      // Else update existing book
+      fetch(`/book/${form.bookId}`, { method: 'put', body: formData});
+  
+  responsePromise.then(function (fetchResponse) {
+      handleResponse(fetchResponse, () => {
+        fetchResponse.text().then((responseText) => {
+          const response = JSON.parse(responseText);
+          if (isNewBook) {
+            alert(`New book is added. Book id = ${response}`);
+            addNewGridItem(response, book);
+          } else {
+            alert(`Book with id = ${form.bookId} has been updated`);
+            updateGridItem(form.bookId, book);
+          }
+          closeDetailsModal();
+        })
+      });
+  }).catch(function (err) {
+    alert("There was an error!: " + err);
+  });
 }
 
-function handleResponse(httpRr, successHandler) {
-  console.log(`Received response with status=${httpRr.status} and response text ${httpRr.responseText}`);
-  if (httpRr.readyState === 4 && httpRr.status === 200) {
+function handleResponse(fetchResponse, successHandler) {
+  console.log(`Received response with status=${fetchResponse.status} and body ${fetchResponse.body}`);
+  if (fetchResponse.status === 200) {
     successHandler();
   } else {
-    handleRequestError(httpRr);
+    handleRequestError(fetchResponse);
   }
 }
 
 function deleteBook(bookId) {
-  const httpRr = new XMLHttpRequest();
-  httpRr.onreadystatechange = () => handleResponse(httpRr, () => {
-    alert(`Book with id = ${bookId} has been deleted`);
-    deleteGridItem(bookId);
-    closeDetailsModal();
+  fetch(`http://127.0.0.1:8080/book/${bookId}`, {method : "delete"})
+  .then(fetchResponse => {
+    handleResponse(fetchResponse, () => {
+      alert(`Book with id = ${bookId} has been deleted`);
+      deleteGridItem(bookId);
+      closeDetailsModal();
+    });
   });
-  httpRr.open("DELETE", `http://127.0.0.1:8080/book/${bookId}`);
-  httpRr.send();
 }
 
 function deleteGridItem(bookId) {
@@ -113,13 +127,13 @@ function getForm() {
   return document.getElementById("details-form");
 }
 
-function handleRequestError(httpRr) {
-  if (httpRr.readyState === 4 && httpRr.status === 404) {
+function handleRequestError(fetchResponse) {
+  if (fetchResponse.status === 404) {
     alert("Book not found!");
-  } else if (httpRr.readyState === 4 && httpRr.status === 500) {
+  } else if (fetchResponse.status === 500) {
     alert("Server error. Try later");
-  } else if (httpRr.readyState === 4) {
-    alert(`Unexpected server response. Status = ${httpRr.status}`);
+  } else {
+    alert(`Unexpected server response. Status = ${fetchResponse.status}`);
   }
 }
 

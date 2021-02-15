@@ -10,9 +10,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @Slf4j
@@ -49,8 +50,12 @@ public class BookShopController {
         }
     }
     
-    @PutMapping("/book/{id}")
-    public ResponseEntity<Long> updateBook(@RequestBody Book book, @PathVariable("id") long bookId) {
+    @RequestMapping(path= "/book/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<Long> updateBook(
+        @RequestPart("book") Book book,
+        @RequestPart(value = "image", required = false) MultipartFile image,
+        @PathVariable("id") long bookId) {
+        
         log.info("Update book with id = {} to: {}", bookId, book);
         if (bookId <= 0) {
             return ResponseEntity.badRequest().build();
@@ -66,8 +71,13 @@ public class BookShopController {
         }
     }
 
-    @PostMapping("/book")
-    public ResponseEntity<Long> addBook(@RequestBody Book inputBook) {
+    @RequestMapping(path= "/book", method = RequestMethod.POST)
+    public ResponseEntity<Long> addBook(
+        @RequestPart("book") Book inputBook,
+        @RequestPart(value = "image", required = false) MultipartFile image) {
+        
+        log.info("Image = {}", image);
+        
         try {
             log.info("Save book: {}", inputBook);
             Book newBook = inputBook.toBuilder().id(0).build();
