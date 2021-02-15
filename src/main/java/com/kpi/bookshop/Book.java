@@ -3,10 +3,12 @@ package com.kpi.bookshop;
 import java.util.Locale;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
 
 @Data
 @Builder(toBuilder = true)
 public class Book {
+    @Id
     private long id;
     private String title;
     private String author;
