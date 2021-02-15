@@ -40,11 +40,14 @@ public class MongoDbBooksService implements BooksService {
     }
 
     @Override
-    public boolean updateBook(Book updatedBook) {
+    public Optional<Book> updateBook(Book updatedBook) {
         return booksRepository.findById(updatedBook.getId()).map(book -> {
+            if (updatedBook.getImageName() == null) {
+                updatedBook.setImageName(book.getImageName());
+            }
             booksRepository.save(updatedBook);
-            return true;
-        }).orElse(false);
+            return updatedBook;
+        });
     }
 
     @Override

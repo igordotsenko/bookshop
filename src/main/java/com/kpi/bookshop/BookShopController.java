@@ -24,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 @Slf4j
 public class BookShopController {
-    private static final String DEFAULT_IMAGE_FILE_NAME = "pes.jpg";
+    private static final String DEFAULT_IMAGE_FILE_NAME = "pes.jpeg";
     
     private final BooksService booksService;
     private final FileStoreService fileStoreService;
@@ -81,9 +81,10 @@ public class BookShopController {
                 bookBuilder.imageName(fileName);
                 log.info("Saved image. Path = {}", fileName);
             }
-            log.info("Update book {}", bookBuilder.build());
-            return booksService.updateBook(bookBuilder.build()) ?
-                ResponseEntity.ok(bookBuilder.build()) : ResponseEntity.notFound().build();
+            Optional<Book> updatedBook = booksService.updateBook(bookBuilder.build());
+            log.info("Updated book: {}", updatedBook);
+            return updatedBook.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (Exception e) {
             log.error("Error on book update", e);
             return errorResponse();
@@ -106,8 +107,8 @@ public class BookShopController {
             } else {
                 bookBuilder.imageName(DEFAULT_IMAGE_FILE_NAME);
             }
-            Book newBook = inputBook.toBuilder().id(0).build();
-            long savedBookId = booksService.addBook(newBook).getId();
+            log.info("Saving book {}", bookBuilder.build());
+            long savedBookId = booksService.addBook(bookBuilder.build()).getId();
             return ResponseEntity.ok(savedBookId);
         } catch (Exception e) {
             log.error("Error on saving book {}", inputBook, e);

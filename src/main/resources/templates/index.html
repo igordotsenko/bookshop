@@ -212,6 +212,7 @@
 <div class="grid-container" id="grid-container">
   <div class="book-item-card" th:each="book : ${books}" th:id="'book-item-card-id-'+${book.getId()}">
     <img class="book-image"
+         id="book-image"
          th:src="'/image/' + ${book.getImageName()}"
          alt="Cannot load the image"
     >
