@@ -1,9 +1,15 @@
 package com.kpi.bookshop;
 
+import com.kpi.bookshop.Book.BookBuilder;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Collection;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 @Slf4j
 public class BookShopController {
+    private static final String DEFAULT_IMAGE_FILE_NAME = "pes.jpg";
+    
     private final BooksService booksService;
     private final FileStoreService fileStoreService;
 
@@ -56,7 +64,7 @@ public class BookShopController {
     }
     
     @RequestMapping(path= "/book/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<Long> updateBook(
+    public ResponseEntity<Book> updateBook(
         @RequestPart("book") Book book,
         @RequestPart(value = "image", required = false) MultipartFile image,
         @PathVariable("id") long bookId) {
@@ -67,13 +75,15 @@ public class BookShopController {
         }
         
         try {
+            BookBuilder bookBuilder = book.toBuilder().id(bookId);
             if (image != null) {
-                String filePath = fileStoreService.storeFile(image);
-                log.info("Saved image. Path = {}", filePath);
+                String fileName = fileStoreService.storeFile(image);
+                bookBuilder.imageName(fileName);
+                log.info("Saved image. Path = {}", fileName);
             }
-            Book updatedBook = book.toBuilder().id(bookId).build();
-            return booksService.updateBook(updatedBook) ?
-                ResponseEntity.ok(bookId) : ResponseEntity.notFound().build();
+            log.info("Update book {}", bookBuilder.build());
+            return booksService.updateBook(bookBuilder.build()) ?
+                ResponseEntity.ok(bookBuilder.build()) : ResponseEntity.notFound().build();
         } catch (Exception e) {
             log.error("Error on book update", e);
             return errorResponse();
@@ -86,12 +96,15 @@ public class BookShopController {
         @RequestPart(value = "image", required = false) MultipartFile image) {
         
         log.info("Image = {}", image);
-        
+        Book.BookBuilder bookBuilder = inputBook.toBuilder().id(0);
         try {
             log.info("Save book: {}", inputBook);
             if (image != null) {
-                String filePath = fileStoreService.storeFile(image);
-                log.info("Saved image. Path = {}", filePath);
+                String imageFileName = fileStoreService.storeFile(image);
+                bookBuilder.imageName(imageFileName);
+                log.info("Saved image. Image name = {}", imageFileName);
+            } else {
+                bookBuilder.imageName(DEFAULT_IMAGE_FILE_NAME);
             }
             Book newBook = inputBook.toBuilder().id(0).build();
             long savedBookId = booksService.addBook(newBook).getId();
@@ -110,6 +123,20 @@ public class BookShopController {
                 ResponseEntity.ok(bookId) : ResponseEntity.notFound().build();
         } catch (Exception e) {
             log.error("Error on deleting book with id {}", bookId, e);
+            return errorResponse();
+        }
+    }
+    
+    @GetMapping("/image/{filename}")
+    public ResponseEntity<byte[]> getBookImage(@PathVariable("filename") String filename) {
+        Optional<File> imageFile = fileStoreService.getImageFile(filename);
+        if (imageFile.isEmpty()) return ResponseEntity.notFound().build();
+        
+        try {
+            byte[] imageBytes = Files.readAllBytes(imageFile.get().toPath());
+            return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(imageBytes);
+        } catch (IOException e) {
+            e.printStackTrace();
             return errorResponse();
         }
     }

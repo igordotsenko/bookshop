@@ -212,7 +212,7 @@
 <div class="grid-container" id="grid-container">
   <div class="book-item-card" th:each="book : ${books}" th:id="'book-item-card-id-'+${book.getId()}">
     <img class="book-image"
-         src="https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg"
+         th:src="'/image/' + ${book.getImageName()}"
          alt="Cannot load the image"
     >
     <p class="title overflow-text" th:text="${book.title}"></p>

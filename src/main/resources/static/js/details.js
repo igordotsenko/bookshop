@@ -40,6 +40,10 @@ function saveDetails(form) {
   const imageFiles = form.book_image_edit.files;
   console.log("Image files = " + imageFiles);
   const image = imageFiles.length > 0 ? imageFiles[0] : undefined;
+  if(image && image.size > 1024 * 1024) {
+    alert("Image   cannot be larger than 1 MB");
+    return;
+  }
 
   // Build form data
   const formData = new FormData();
@@ -66,7 +70,7 @@ function saveDetails(form) {
             addNewGridItem(response, book);
           } else {
             alert(`Book with id = ${form.bookId} has been updated`);
-            updateGridItem(form.bookId, book);
+            updateGridItem(form.bookId, response);
           }
           closeDetailsModal();
         })
@@ -183,6 +187,7 @@ function updateGridItem(bookId, book) {
   gridItem.querySelector(".author").innerHTML = book.author;
   gridItem.querySelector(".description").innerHTML = getDescription(book.description);
   gridItem.querySelector(".price").innerHTML = formatPrice(book.price);
+  gridItem.querySelector(".book-image").src = `/image/${book.imageName}`;
 }
 
 function formatPrice(price) {

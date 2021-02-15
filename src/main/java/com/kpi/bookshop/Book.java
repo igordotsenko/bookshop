@@ -21,6 +21,7 @@ public class Book {
     private int yearPublished;
     private String publisher;
     private boolean isDeleted;
+    private String imageName;
     
     public boolean isActive() {
         return !isDeleted();
