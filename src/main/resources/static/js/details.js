@@ -5,7 +5,7 @@ function openDetails(e) {
   const form = getForm();
   
   
-  fetch(`http://127.0.0.1:8080/book/${bookId}`, { method : "get" }).
+  fetch(`/book/${bookId}`, { method : "get" }).
   then((fetchResponse) => {
     handleResponse(fetchResponse, () => {
       fetchResponse.text().then(responseText => {
@@ -86,7 +86,7 @@ function handleResponse(fetchResponse, successHandler) {
 }
 
 function deleteBook(bookId) {
-  fetch(`http://127.0.0.1:8080/book/${bookId}`, {method : "delete"})
+  fetch(`/book/${bookId}`, {method : "delete"})
   .then(fetchResponse => {
     handleResponse(fetchResponse, () => {
       alert(`Book with id = ${bookId} has been deleted`);
