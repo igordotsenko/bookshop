@@ -67,7 +67,7 @@ function saveDetails(form) {
           const response = JSON.parse(responseText);
           if (isNewBook) {
             alert(`New book is added. Book id = ${response}`);
-            addNewGridItem(response, book);
+            addNewGridItem(response, book, image);
           } else {
             alert(`Book with id = ${form.bookId} has been updated`);
             updateGridItem(form.bookId, response);
@@ -141,15 +141,25 @@ function handleRequestError(fetchResponse) {
   }
 }
 
-function buildGridItem(bookId, book) {
+function buildGridItem(bookId, book, image) {
   const gridItem = document.createElement('div');
   gridItem.id = `book-item-card-id-${bookId}`;
   gridItem.className = "book-item-card";
   
   const bookImg = document.createElement('img');
   bookImg.className = "book-image";
-  // TODO update to real URL
-  bookImg.src = "https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg";
+
+  
+  if (image) { // Set picked picture
+    const fr = new FileReader();
+    fr.onload = function () {
+      bookImg.src = fr.result;
+    }
+    fr.readAsDataURL(image);
+  } else {
+    bookImg.src = "https://dogtowndogtraining.com/wp-content/uploads/2012/06/300x300-061-e1340955308953.jpg";
+  }
+
   
   gridItem.appendChild(bookImg);
   gridItem.appendChild(createP(['title', 'overflow-text'], book.title));
@@ -175,9 +185,9 @@ function createP(classes, text) {
   return p;
 }
 
-function addNewGridItem(bookId, book) {
+function addNewGridItem(bookId, book, image) {
   const grid = document.getElementById("grid-container");
-  const gridItem = buildGridItem(bookId, book);
+  const gridItem = buildGridItem(bookId, book, image);
   grid.prepend(gridItem);
 }
 
